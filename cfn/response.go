@@ -1,6 +1,8 @@
 package cfn
 
 import (
+	"log"
+
 	"github.com/aws-cloudformation/cloudformation-cli-go-plugin/cfn/encoding"
 	"github.com/aws-cloudformation/cloudformation-cli-go-plugin/cfn/handler"
 )
@@ -50,10 +52,14 @@ func newFailedResponse(err error, bearerToken string) response {
 // newResponse converts a progress event into a useable reponse
 // for the CloudFormation Resource Provider service to understand.
 func newResponse(pevt *handler.ProgressEvent, bearerToken string) (response, error) {
+	log.Printf("Making response with: %#v", pevt.ResourceModel)
+
 	model, err := encoding.Stringify(pevt.ResourceModel)
 	if err != nil {
 		return response{}, err
 	}
+
+	log.Printf("Resp model: %#v", model)
 
 	var models []interface{}
 	if pevt.ResourceModels != nil {
@@ -67,6 +73,8 @@ func newResponse(pevt *handler.ProgressEvent, bearerToken string) (response, err
 			models[i] = m
 		}
 	}
+
+	log.Printf("Resp models: %#v", models)
 
 	resp := response{
 		BearerToken:     bearerToken,
